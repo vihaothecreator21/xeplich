@@ -342,7 +342,6 @@ function displaySchedule(schedule) {
   document.getElementById("scheduleResult").innerHTML = html;
 }
 
-
 // Khởi tạo giao diện khi trang load
 document.addEventListener("DOMContentLoaded", function () {
   initializeScheduleGrid();

@@ -132,11 +132,11 @@ function generateSchedule() {
         `[data-member="${member}"][data-day="${dayKey}"][data-shift="evening"]`
       );
 
-      if (morningBtn && morningBtn.classList.contains("selected")) {
+      if (morningBtn.classList.contains("selected")) {
         scheduleData[member].morning.push(days[index]);
       }
 
-      if (eveningBtn && eveningBtn.classList.contains("selected")) {
+      if (eveningBtn.classList.contains("selected")) {
         scheduleData[member].evening.push(days[index]);
       }
     });
@@ -176,6 +176,10 @@ function generateSchedule() {
   saveState(); // Lưu trạng thái sau khi tạo lịch
 }
 
+function getWeekId(startOfWeek) {
+  return `scheduleNotes_${startOfWeek.toISOString().slice(0, 10)}`;
+}
+
 function displaySchedule(schedule) {
   // Tính toán ngày trong tuần (từ thứ 2 đến chủ nhật)
   const today = new Date();
@@ -191,6 +195,9 @@ function displaySchedule(schedule) {
     date.setDate(startOfWeek.getDate() + i);
     weekDates.push(date);
   }
+
+  const weekId = getWeekId(startOfWeek);
+  const savedNotes = JSON.parse(localStorage.getItem(weekId)) || {};
 
   let html = `
         <div style="margin-top: 30px;">
@@ -239,23 +246,30 @@ function displaySchedule(schedule) {
                     <tr>
                         <td class="row-header">SÁNG (8:30 - 15:30)</td>
                         ${days
-                          .map((day) => {
+                          .map((day, dayIndex) => {
                             const daySchedule = schedule[day];
                             const morningNames = daySchedule.morningMembers.map(
                               (m) => m.name
                             );
+                            const noteId = `note-${dayIndex}-morning`;
+                            const noteText = savedNotes[noteId] || '';
+
+                            let content = '';
+                            if (morningNames.length > 0) {
+                              content = morningNames
+                                .map(
+                                  (name) =>
+                                    `<div style="margin: 2px 0; padding: 2px; background: #ffeaa7; border-radius: 3px;">${name}</div>`
+                                )
+                                .join("");
+                            } else if (!noteText) {
+                              content = '<div style="color: #999;">-</div>';
+                            }
+
+                            content += `<div class="note-editable" contenteditable="true" id="${noteId}">${noteText}</div>`;
 
                             return `<td class="member-cell">
-                                ${
-                                  morningNames.length > 0
-                                    ? morningNames
-                                        .map(
-                                          (name) =>
-                                            `<div style="margin: 2px 0; padding: 2px; background: #ffeaa7; border-radius: 3px;">${name}</div>`
-                                        )
-                                        .join("")
-                                    : '<div style="color: #999;">-</div>'
-                                }
+                                ${content}
                             </td>`;
                           })
                           .join("")}
@@ -263,23 +277,30 @@ function displaySchedule(schedule) {
                     <tr>
                         <td class="row-header">CHIỀU (15:00 - 22:00)</td>
                         ${days
-                          .map((day) => {
+                          .map((day, dayIndex) => {
                             const daySchedule = schedule[day];
                             const eveningNames = daySchedule.eveningMembers.map(
                               (m) => m.name
                             );
+                            const noteId = `note-${dayIndex}-evening`;
+                            const noteText = savedNotes[noteId] || '';
+
+                            let content = '';
+                            if (eveningNames.length > 0) {
+                              content = eveningNames
+                                .map(
+                                  (name) =>
+                                    `<div style="margin: 2px 0; padding: 2px; background: #74b9ff; color: white; border-radius: 3px;">${name}</div>`
+                                )
+                                .join("");
+                            } else if (!noteText) {
+                              content = '<div style="color: #999;">-</div>';
+                            }
+
+                            content += `<div class="note-editable" contenteditable="true" id="${noteId}">${noteText}</div>`;
 
                             return `<td class="member-cell">
-                                ${
-                                  eveningNames.length > 0
-                                    ? eveningNames
-                                        .map(
-                                          (name) =>
-                                            `<div style="margin: 2px 0; padding: 2px; background: #74b9ff; color: white; border-radius: 3px;">${name}</div>`
-                                        )
-                                        .join("")
-                                    : '<div style="color: #999;">-</div>'
-                                }
+                                ${content}
                             </td>`;
                           })
                           .join("")}
@@ -360,6 +381,20 @@ function displaySchedule(schedule) {
     `;
 
   document.getElementById("scheduleResult").innerHTML = html;
+  addNoteListeners(startOfWeek);
+}
+
+function addNoteListeners(startOfWeek) {
+  const weekId = getWeekId(startOfWeek);
+  const noteDivs = document.querySelectorAll('.note-editable');
+  noteDivs.forEach(div => {
+    div.addEventListener('blur', (e) => {
+      const id = e.target.id;
+      let notes = JSON.parse(localStorage.getItem(weekId)) || {};
+      notes[id] = e.target.innerText.trim();
+      localStorage.setItem(weekId, JSON.stringify(notes));
+    });
+  });
 }
 
 function saveState() {

@@ -346,3 +346,18 @@ function displaySchedule(schedule) {
 document.addEventListener("DOMContentLoaded", function () {
   initializeScheduleGrid();
 });
+// Lưu lịch vào bộ nhớ trình duyệt
+function saveSchedule() {
+  const result = document.getElementById("scheduleResult").innerHTML;
+  localStorage.setItem("lastSchedule", result);
+  alert("✅ Lịch đã được lưu!");
+}
+
+// Khi mở web, tự load lịch đã lưu
+window.onload = function() {
+  const saved = localStorage.getItem("lastSchedule");
+  if(saved) {
+    document.getElementById("scheduleResult").innerHTML = saved;
+  }
+};
+

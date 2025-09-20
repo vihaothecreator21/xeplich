@@ -1,4 +1,4 @@
-const members = ["Hảo", "Vy", "Hiếu", "Thùy", "Hương"];
+let members = ["Hảo", "Vy", "Hiếu", "Thùy", "Hương"];
 const days = ["Thứ 2", "Thứ 3", "Thứ 4", "Thứ 5", "Thứ 6", "Thứ 7", "Chủ nhật"];
 const dayKeys = ["t2", "t3", "t4", "t5", "t6", "t7", "cn"];
 
@@ -6,12 +6,32 @@ const dayKeys = ["t2", "t3", "t4", "t5", "t6", "t7", "cn"];
 function initializeScheduleGrid() {
   const grid = document.getElementById("scheduleGrid");
 
-  members.forEach((member) => {
-    // Tên thành viên
-    const memberDiv = document.createElement("div");
-    memberDiv.className = "member-name";
-    memberDiv.textContent = member;
-    grid.appendChild(memberDiv);
+  members.forEach((member, memberIndex) => {
+    // Tên thành viên là input để chỉnh sửa
+    const memberInput = document.createElement("input");
+    memberInput.type = "text";
+    memberInput.className = "member-name";
+    memberInput.value = member;
+    memberInput.addEventListener("change", (e) => {
+      const newName = e.target.value.trim();
+      if (newName && newName !== members[memberIndex]) {
+        const oldName = members[memberIndex];
+        // Cập nhật tất cả data-member từ cũ sang mới
+        document
+          .querySelectorAll(`[data-member="${oldName}"]`)
+          .forEach((btn) => {
+            btn.setAttribute("data-member", newName);
+          });
+        members[memberIndex] = newName;
+        // Lưu members mới
+        localStorage.setItem("members", JSON.stringify(members));
+        // Lưu lại state với tên mới
+        saveState();
+      } else if (!newName) {
+        e.target.value = members[memberIndex]; // Khôi phục nếu rỗng
+      }
+    });
+    grid.appendChild(memberInput);
 
     // Các ngày trong tuần
     dayKeys.forEach((dayKey) => {
@@ -28,7 +48,7 @@ function initializeScheduleGrid() {
       morningBtn.setAttribute("data-member", member);
       morningBtn.setAttribute("data-day", dayKey);
       morningBtn.setAttribute("data-shift", "morning");
-      morningBtn.onclick = () => toggleShift(member, dayKey, "morning");
+      morningBtn.onclick = toggleShift;
 
       // Nút ca chiều
       const eveningBtn = document.createElement("button");
@@ -37,7 +57,7 @@ function initializeScheduleGrid() {
       eveningBtn.setAttribute("data-member", member);
       eveningBtn.setAttribute("data-day", dayKey);
       eveningBtn.setAttribute("data-shift", "evening");
-      eveningBtn.onclick = () => toggleShift(member, dayKey, "evening");
+      eveningBtn.onclick = toggleShift;
 
       // Nút off
       const offBtn = document.createElement("button");
@@ -46,7 +66,7 @@ function initializeScheduleGrid() {
       offBtn.setAttribute("data-member", member);
       offBtn.setAttribute("data-day", dayKey);
       offBtn.setAttribute("data-shift", "off");
-      offBtn.onclick = () => toggleShift(member, dayKey, "off");
+      offBtn.onclick = toggleShift;
 
       shiftButtons.appendChild(morningBtn);
       shiftButtons.appendChild(eveningBtn);
@@ -57,22 +77,23 @@ function initializeScheduleGrid() {
   });
 }
 
-function toggleShift(member, day, shift) {
+function toggleShift(e) {
+  const btn = e.target;
+  const member = btn.getAttribute("data-member");
+  const day = btn.getAttribute("data-day");
+  const shift = btn.getAttribute("data-shift");
+
   const buttons = document.querySelectorAll(
     `[data-member="${member}"][data-day="${day}"]`
   );
 
   if (shift === "off") {
     // Nếu chọn off, bỏ chọn tất cả các ca khác
-    buttons.forEach((btn) => {
-      btn.classList.remove("selected");
+    buttons.forEach((b) => {
+      b.classList.remove("selected");
     });
     // Chọn off
-    document
-      .querySelector(
-        `[data-member="${member}"][data-day="${day}"][data-shift="off"]`
-      )
-      .classList.add("selected");
+    btn.classList.add("selected");
   } else {
     // Bỏ chọn off nếu chọn ca làm việc
     document
@@ -82,10 +103,7 @@ function toggleShift(member, day, shift) {
       .classList.remove("selected");
 
     // Toggle ca được chọn
-    const targetBtn = document.querySelector(
-      `[data-member="${member}"][data-day="${day}"][data-shift="${shift}"]`
-    );
-    targetBtn.classList.toggle("selected");
+    btn.classList.toggle("selected");
   }
 }
 
@@ -93,6 +111,9 @@ function resetAll() {
   const allButtons = document.querySelectorAll(".shift-btn");
   allButtons.forEach((btn) => btn.classList.remove("selected"));
   document.getElementById("scheduleResult").innerHTML = "";
+  localStorage.removeItem("scheduleState");
+  // Optional: Reset members to default if needed
+  // localStorage.removeItem('members');
 }
 
 function generateSchedule() {
@@ -113,11 +134,11 @@ function generateSchedule() {
         `[data-member="${member}"][data-day="${dayKey}"][data-shift="evening"]`
       );
 
-      if (morningBtn.classList.contains("selected")) {
+      if (morningBtn && morningBtn.classList.contains("selected")) {
         scheduleData[member].morning.push(days[index]);
       }
 
-      if (eveningBtn.classList.contains("selected")) {
+      if (eveningBtn && eveningBtn.classList.contains("selected")) {
         scheduleData[member].evening.push(days[index]);
       }
     });
@@ -154,6 +175,7 @@ function generateSchedule() {
   });
 
   displaySchedule(weeklySchedule);
+  saveState(); // Lưu trạng thái sau khi tạo lịch
 }
 
 function displaySchedule(schedule) {
@@ -342,7 +364,83 @@ function displaySchedule(schedule) {
   document.getElementById("scheduleResult").innerHTML = html;
 }
 
+function saveState() {
+  const state = {};
+  members.forEach((member) => {
+    state[member] = {};
+    dayKeys.forEach((dayKey) => {
+      state[member][dayKey] = {
+        morning:
+          document
+            .querySelector(
+              `[data-member="${member}"][data-day="${dayKey}"][data-shift="morning"]`
+            )
+            ?.classList.contains("selected") || false,
+        evening:
+          document
+            .querySelector(
+              `[data-member="${member}"][data-day="${dayKey}"][data-shift="evening"]`
+            )
+            ?.classList.contains("selected") || false,
+        off:
+          document
+            .querySelector(
+              `[data-member="${member}"][data-day="${dayKey}"][data-shift="off"]`
+            )
+            ?.classList.contains("selected") || false,
+      };
+    });
+  });
+  localStorage.setItem("scheduleState", JSON.stringify(state));
+}
+
+function loadMembers() {
+  const savedMembers = localStorage.getItem("members");
+  if (savedMembers) {
+    members = JSON.parse(savedMembers);
+  }
+}
+
+function loadScheduleState() {
+  const saved = localStorage.getItem("scheduleState");
+  if (saved) {
+    const state = JSON.parse(saved);
+    members.forEach((member) => {
+      dayKeys.forEach((dayKey) => {
+        const shifts = state[member]?.[dayKey];
+        if (shifts) {
+          if (shifts.morning) {
+            document
+              .querySelector(
+                `[data-member="${member}"][data-day="${dayKey}"][data-shift="morning"]`
+              )
+              ?.classList.add("selected");
+          }
+          if (shifts.evening) {
+            document
+              .querySelector(
+                `[data-member="${member}"][data-day="${dayKey}"][data-shift="evening"]`
+              )
+              ?.classList.add("selected");
+          }
+          if (shifts.off) {
+            document
+              .querySelector(
+                `[data-member="${member}"][data-day="${dayKey}"][data-shift="off"]`
+              )
+              ?.classList.add("selected");
+          }
+        }
+      });
+    });
+    // Tự động hiển thị lịch gần nhất
+    generateSchedule();
+  }
+}
+
 // Khởi tạo giao diện khi trang load
 document.addEventListener("DOMContentLoaded", function () {
-  initializeScheduleGrid();
+  loadMembers(); // Load members trước
+  initializeScheduleGrid(); // Khởi tạo grid với members đã load
+  loadScheduleState(); // Sau đó áp dụng state
 });

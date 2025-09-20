@@ -366,3 +366,8 @@ iframe {
   height: auto;
   display: block;
 }
+.schedule-table {
+  overflow-x: auto;
+  display: block;
+}
+

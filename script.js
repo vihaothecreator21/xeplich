@@ -12,19 +12,17 @@ function initializeScheduleGrid() {
     memberInput.type = "text";
     memberInput.className = "member-name";
     memberInput.value = member;
-    memberInput.addEventListener("change", (e) => {
+    memberInput.addEventListener('change', (e) => {
       const newName = e.target.value.trim();
       if (newName && newName !== members[memberIndex]) {
         const oldName = members[memberIndex];
         // Cập nhật tất cả data-member từ cũ sang mới
-        document
-          .querySelectorAll(`[data-member="${oldName}"]`)
-          .forEach((btn) => {
-            btn.setAttribute("data-member", newName);
-          });
+        document.querySelectorAll(`[data-member="${oldName}"]`).forEach(btn => {
+          btn.setAttribute('data-member', newName);
+        });
         members[memberIndex] = newName;
         // Lưu members mới
-        localStorage.setItem("members", JSON.stringify(members));
+        localStorage.setItem('members', JSON.stringify(members));
         // Lưu lại state với tên mới
         saveState();
       } else if (!newName) {
@@ -79,9 +77,9 @@ function initializeScheduleGrid() {
 
 function toggleShift(e) {
   const btn = e.target;
-  const member = btn.getAttribute("data-member");
-  const day = btn.getAttribute("data-day");
-  const shift = btn.getAttribute("data-shift");
+  const member = btn.getAttribute('data-member');
+  const day = btn.getAttribute('data-day');
+  const shift = btn.getAttribute('data-shift');
 
   const buttons = document.querySelectorAll(
     `[data-member="${member}"][data-day="${day}"]`
@@ -111,7 +109,7 @@ function resetAll() {
   const allButtons = document.querySelectorAll(".shift-btn");
   allButtons.forEach((btn) => btn.classList.remove("selected"));
   document.getElementById("scheduleResult").innerHTML = "";
-  localStorage.removeItem("scheduleState");
+  localStorage.removeItem('scheduleState');
   // Optional: Reset members to default if needed
   // localStorage.removeItem('members');
 }
@@ -370,24 +368,15 @@ function saveState() {
     state[member] = {};
     dayKeys.forEach((dayKey) => {
       state[member][dayKey] = {
-        morning:
-          document
-            .querySelector(
-              `[data-member="${member}"][data-day="${dayKey}"][data-shift="morning"]`
-            )
-            ?.classList.contains("selected") || false,
-        evening:
-          document
-            .querySelector(
-              `[data-member="${member}"][data-day="${dayKey}"][data-shift="evening"]`
-            )
-            ?.classList.contains("selected") || false,
-        off:
-          document
-            .querySelector(
-              `[data-member="${member}"][data-day="${dayKey}"][data-shift="off"]`
-            )
-            ?.classList.contains("selected") || false,
+        morning: document.querySelector(
+          `[data-member="${member}"][data-day="${dayKey}"][data-shift="morning"]`
+        )?.classList.contains("selected") || false,
+        evening: document.querySelector(
+          `[data-member="${member}"][data-day="${dayKey}"][data-shift="evening"]`
+        )?.classList.contains("selected") || false,
+        off: document.querySelector(
+          `[data-member="${member}"][data-day="${dayKey}"][data-shift="off"]`
+        )?.classList.contains("selected") || false,
       };
     });
   });
@@ -395,46 +384,57 @@ function saveState() {
 }
 
 function loadMembers() {
-  const savedMembers = localStorage.getItem("members");
+  const savedMembers = localStorage.getItem('members');
   if (savedMembers) {
-    members = JSON.parse(savedMembers);
+    try {
+      members = JSON.parse(savedMembers);
+    } catch (e) {
+      console.error('Dữ liệu members không hợp lệ:', e);
+      localStorage.removeItem('members');
+      // Giữ default members
+    }
   }
 }
 
 function loadScheduleState() {
   const saved = localStorage.getItem("scheduleState");
   if (saved) {
-    const state = JSON.parse(saved);
-    members.forEach((member) => {
-      dayKeys.forEach((dayKey) => {
-        const shifts = state[member]?.[dayKey];
-        if (shifts) {
-          if (shifts.morning) {
-            document
-              .querySelector(
-                `[data-member="${member}"][data-day="${dayKey}"][data-shift="morning"]`
-              )
-              ?.classList.add("selected");
+    try {
+      const state = JSON.parse(saved);
+      members.forEach((member) => {
+        dayKeys.forEach((dayKey) => {
+          const shifts = state[member]?.[dayKey];
+          if (shifts) {
+            if (shifts.morning) {
+              document
+                .querySelector(
+                  `[data-member="${member}"][data-day="${dayKey}"][data-shift="morning"]`
+                )
+                ?.classList.add("selected");
+            }
+            if (shifts.evening) {
+              document
+                .querySelector(
+                  `[data-member="${member}"][data-day="${dayKey}"][data-shift="evening"]`
+                )
+                ?.classList.add("selected");
+            }
+            if (shifts.off) {
+              document
+                .querySelector(
+                  `[data-member="${member}"][data-day="${dayKey}"][data-shift="off"]`
+                )
+                ?.classList.add("selected");
+            }
           }
-          if (shifts.evening) {
-            document
-              .querySelector(
-                `[data-member="${member}"][data-day="${dayKey}"][data-shift="evening"]`
-              )
-              ?.classList.add("selected");
-          }
-          if (shifts.off) {
-            document
-              .querySelector(
-                `[data-member="${member}"][data-day="${dayKey}"][data-shift="off"]`
-              )
-              ?.classList.add("selected");
-          }
-        }
+        });
       });
-    });
-    // Tự động hiển thị lịch gần nhất
-    generateSchedule();
+      // Tự động hiển thị lịch gần nhất
+      generateSchedule();
+    } catch (e) {
+      console.error('Dữ liệu scheduleState không hợp lệ:', e);
+      localStorage.removeItem('scheduleState');
+    }
   }
 }
 

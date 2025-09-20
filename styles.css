@@ -103,6 +103,8 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
+  border: none;
+  font-size: inherit;
 }
 
 .day-cell {

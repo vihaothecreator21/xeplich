@@ -251,6 +251,17 @@ body {
   font-weight: 700;
 }
 
+.note-editable {
+  color: gray;
+  font-style: italic;
+  margin-top: 5px;
+  min-height: 20px;
+  border: 1px dashed #ccc;
+  padding: 2px;
+  border-radius: 3px;
+  cursor: text;
+}
+
 /* Responsive Design */
 @media (max-width: 1200px) {
   .schedule-grid {

@@ -346,18 +346,25 @@ function displaySchedule(schedule) {
 document.addEventListener("DOMContentLoaded", function () {
   initializeScheduleGrid();
 });
-// Lưu lịch vào bộ nhớ trình duyệt
-function saveSchedule() {
-  const result = document.getElementById("scheduleResult").innerHTML;
-  localStorage.setItem("lastSchedule", result);
-  alert("✅ Lịch đã được lưu!");
-}
-
-// Khi mở web, tự load lịch đã lưu
-window.onload = function() {
-  const saved = localStorage.getItem("lastSchedule");
-  if(saved) {
-    document.getElementById("scheduleResult").innerHTML = saved;
+<script>
+  // Lưu lịch
+  function saveSchedule() {
+    const resultDiv = document.getElementById("scheduleResult");
+    if(resultDiv) {
+      localStorage.setItem("lastSchedule", resultDiv.innerHTML);
+      alert("✅ Lịch đã được lưu!");
+    } else {
+      alert("⚠️ Không tìm thấy phần hiển thị lịch!");
+    }
   }
-};
+
+  // Tự load khi mở web
+  window.addEventListener("DOMContentLoaded", () => {
+    const saved = localStorage.getItem("lastSchedule");
+    if(saved) {
+      const resultDiv = document.getElementById("scheduleResult");
+      if(resultDiv) resultDiv.innerHTML = saved;
+    }
+  });
+</script>
 

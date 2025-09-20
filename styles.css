@@ -6,7 +6,7 @@
 
 body {
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-  background: linear-gradient(135deg, #fdfcfb 0%, #e2d1c3 100%);
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   min-height: 100vh;
   padding: 20px;
 }
@@ -14,15 +14,15 @@ body {
 .container {
   max-width: 1400px;
   margin: 0 auto;
-  background: #fffdf9;
+  background: white;
   border-radius: 15px;
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
   overflow: hidden;
 }
 
 .header {
-  background: linear-gradient(135deg, #f6d365 0%, #fda085 100%);
-  color: #4a3f35;
+  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+  color: white;
   padding: 30px;
   text-align: center;
 }
@@ -42,7 +42,7 @@ body {
 }
 
 .instructions {
-  background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+  background: linear-gradient(135deg, #ffeaa7 0%, #fab1a0 100%);
   padding: 20px;
   border-radius: 10px;
   margin-bottom: 20px;
@@ -84,8 +84,8 @@ body {
 }
 
 .day-header {
-  background: linear-gradient(135deg, #f6d365 0%, #fda085 100%);
-  color: #4a3f35;
+  background: linear-gradient(135deg, #ff8c42 0%, #ff6b35 100%);
+  color: white;
   padding: 10px;
   text-align: center;
   font-weight: bold;
@@ -94,7 +94,7 @@ body {
 }
 
 .member-name {
-  background: linear-gradient(135deg, #c3f5c9 0%, #a8e6cf 100%);
+  background: linear-gradient(135deg, #a8e6cf 0%, #88d8a3 100%);
   color: #2d5a2d;
   font-weight: bold;
   padding: 10px;
@@ -130,31 +130,31 @@ body {
 }
 
 .shift-btn:hover {
-  border-color: #f6d365;
+  border-color: #4facfe;
   transform: translateY(-1px);
 }
 
 .shift-btn.morning.selected {
-  background: linear-gradient(135deg, #fff1c1 0%, #ffd194 100%);
-  border-color: #e6a34a;
-  color: #5a4637;
+  background: linear-gradient(135deg, #ffeaa7 0%, #fab1a0 100%);
+  border-color: #e67e22;
+  color: #2d3436;
 }
 
 .shift-btn.evening.selected {
-  background: linear-gradient(135deg, #cfd9df 0%, #e2ebf0 100%);
-  border-color: #90a4ae;
-  color: #2f3e46;
+  background: linear-gradient(135deg, #74b9ff 0%, #0984e3 100%);
+  border-color: #2980b9;
+  color: white;
 }
 
 .shift-btn.off.selected {
-  background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
-  border-color: #c94f4f;
+  background: linear-gradient(135deg, #ff8a80 0%, #ff5722 100%);
+  border-color: #c0392b;
   color: white;
 }
 
 .generate-btn {
-  background: linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%);
-  color: #2d3436;
+  background: linear-gradient(135deg, #56ab2f 0%, #a8e6cf 100%);
+  color: white;
   border: none;
   padding: 15px 30px;
   font-size: 1.2rem;
@@ -172,7 +172,7 @@ body {
 }
 
 .reset-btn {
-  background: linear-gradient(135deg, #f5576c 0%, #f093fb 100%);
+  background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
   color: white;
   border: none;
   padding: 15px 30px;
@@ -193,7 +193,7 @@ body {
 .schedule-table {
   width: 100%;
   border-collapse: collapse;
-  background: #fffdf9;
+  background: white;
   border-radius: 10px;
   overflow: hidden;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
@@ -201,8 +201,8 @@ body {
 }
 
 .schedule-table th {
-  background: linear-gradient(135deg, #f6d365 0%, #fda085 100%);
-  color: #4a3f35;
+  background: linear-gradient(135deg, #ff8c42 0%, #ff6b35 100%);
+  color: white;
   padding: 12px;
   text-align: center;
   font-weight: 600;
@@ -220,13 +220,13 @@ body {
 }
 
 .row-header {
-  background: linear-gradient(135deg, #c3f5c9 0%, #a8e6cf 100%);
+  background: linear-gradient(135deg, #a8e6cf 0%, #88d8a3 100%);
   color: #2d5a2d;
   font-weight: bold;
 }
 
 .off-row {
-  background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
+  background: linear-gradient(135deg, #ff8a80 0%, #ff5722 100%);
   color: white;
   font-weight: bold;
 }
@@ -238,14 +238,14 @@ body {
 }
 
 .date-header {
-  background: linear-gradient(135deg, #ffd194 0%, #ffb347 100%);
-  color: #4a3f35;
+  background: linear-gradient(135deg, #ffb74d 0%, #ff9800 100%);
+  color: white;
   font-weight: 600;
 }
 
 .day-name-header {
-  background: linear-gradient(135deg, #f6d365 0%, #fda085 100%);
-  color: #4a3f35;
+  background: linear-gradient(135deg, #ff8c42 0%, #ff6b35 100%);
+  color: white;
   font-weight: 700;
 }
 
@@ -289,85 +289,87 @@ body {
     margin: 10px 0;
   }
 }
-/* Responsive cho màn hình nhỏ */
-@media (max-width: 768px) {
-  body {
-    font-size: 14px;
-    padding: 0 10px;
-  }
-
-  header,
-  footer {
-    text-align: center;
-    padding: 10px;
-  }
-
-  .container {
-    width: 100%;
-    padding: 0;
-  }
-
-  /* Nếu có layout dạng 2 cột */
-  .row {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-  }
-
-  /* Bảng lịch nếu đang để cứng */
-  table {
-    width: 100%;
-    font-size: 13px;
-    border-collapse: collapse;
-  }
-
-  th,
-  td {
-    padding: 8px;
-    text-align: center;
-    word-break: break-word;
-  }
-
-  /* Menu điều hướng (nếu có) */
-  nav ul {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    padding: 0;
-  }
-
-  nav li {
-    list-style: none;
-  }
-}
-
 @media (max-width: 480px) {
-  body {
-    font-size: 13px;
+  .schedule-grid {
+    grid-template-columns: 60px repeat(7, 1fr);
+    gap: 3px;
   }
 
-  h1,
-  h2,
-  h3 {
-    font-size: 1.2em;
-    text-align: center;
+  .member-name {
+    font-size: 0.7rem;
+    padding: 6px;
   }
 
-  button,
-  input,
-  select {
-    width: 100%;
-    font-size: 14px;
+  .day-header {
+    font-size: 0.6rem;
+    padding: 6px;
+  }
+
+  .shift-btn {
+    padding: 3px;
+    font-size: 0.6rem;
   }
 }
-img,
-iframe {
-  max-width: 100%;
-  height: auto;
-  display: block;
-}
-.schedule-table {
-  overflow-x: auto;
-  display: block;
-}
+@media (max-width: 360px) {
+  .schedule-grid {
+    grid-template-columns: 50px repeat(7, 1fr);
+    gap: 2px;
+  }
 
+  .member-name {
+    font-size: 0.6rem;
+    padding: 5px;
+  }
+
+  .day-header {
+    font-size: 0.5rem;
+    padding: 5px;
+  }
+
+  .shift-btn {
+    padding: 2px;
+    font-size: 0.55rem;
+  }
+}
+@media (max-width: 320px) {
+  .schedule-grid {
+    grid-template-columns: 40px repeat(7, 1fr);
+    gap: 1px;
+  }
+
+  .member-name {
+    font-size: 0.5rem;
+    padding: 4px;
+  }
+
+  .day-header {
+    font-size: 0.4rem;
+    padding: 4px;
+  }
+
+  .shift-btn {
+    padding: 1px;
+    font-size: 0.5rem;
+  }
+}
+@media (max-width: 280px) {
+  .schedule-grid {
+    grid-template-columns: 30px repeat(7, 1fr);
+    gap: 1px;
+  }
+
+  .member-name {
+    font-size: 0.4rem;
+    padding: 3px;
+  }
+
+  .day-header {
+    font-size: 0.3rem;
+    padding: 3px;
+  }
+
+  .shift-btn {
+    padding: 1px;
+    font-size: 0.45rem;
+  }
+}

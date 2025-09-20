@@ -289,3 +289,80 @@ body {
     margin: 10px 0;
   }
 }
+/* Responsive cho màn hình nhỏ */
+@media (max-width: 768px) {
+  body {
+    font-size: 14px;
+    padding: 0 10px;
+  }
+
+  header,
+  footer {
+    text-align: center;
+    padding: 10px;
+  }
+
+  .container {
+    width: 100%;
+    padding: 0;
+  }
+
+  /* Nếu có layout dạng 2 cột */
+  .row {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  /* Bảng lịch nếu đang để cứng */
+  table {
+    width: 100%;
+    font-size: 13px;
+    border-collapse: collapse;
+  }
+
+  th,
+  td {
+    padding: 8px;
+    text-align: center;
+    word-break: break-word;
+  }
+
+  /* Menu điều hướng (nếu có) */
+  nav ul {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 0;
+  }
+
+  nav li {
+    list-style: none;
+  }
+}
+
+@media (max-width: 480px) {
+  body {
+    font-size: 13px;
+  }
+
+  h1,
+  h2,
+  h3 {
+    font-size: 1.2em;
+    text-align: center;
+  }
+
+  button,
+  input,
+  select {
+    width: 100%;
+    font-size: 14px;
+  }
+}
+img,
+iframe {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}

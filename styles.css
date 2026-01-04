@@ -1,3 +1,64 @@
+.note-input {
+  outline: none;
+  border: 1px dashed #ffe082;
+  border-radius: 3px;
+  background: #fffbe6;
+  color: #a67c00;
+  padding: 2px 4px;
+  margin-top: 2px;
+  width: 90%;
+  font-size: 0.85em;
+  text-align: center;
+  transition: border-color 0.2s;
+}
+.note-input:focus {
+  border-color: #ffd54f;
+  background: #fffde7;
+}
+.note-text {
+  font-size: 1rem;
+  color: black;
+  margin-top: 2px;
+  font-style: italic;
+  font-weight: bold;
+  background: none;
+  border: none;
+  padding: 0;
+  text-align: center;
+  word-break: break-word;
+}
+.note-text.center {
+  text-align: center;
+}
+.note-input {
+  outline: none;
+  border: 1px dashed #ffe082;
+  border-radius: 3px;
+  background: #fffbe6;
+  color: #a67c00;
+  padding: 2px 4px;
+  margin-top: 2px;
+  width: 90%;
+  font-size: 0.85em;
+  transition: border-color 0.2s;
+}
+.note-input:focus {
+  border-color: #ffd54f;
+  background: #fffde7;
+}
+.note-box {
+  min-height: 32px;
+  background: #fffbe6;
+  border: 2px dashed #ffe082;
+  border-radius: 5px;
+  margin-top: 8px;
+  margin-bottom: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  color: #a67c00;
+}
 * {
   margin: 0;
   padding: 0;

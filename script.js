@@ -1,379 +1,315 @@
-let members = ["Hảo", "Vy", "Hiếu", "Thùy", "Hương"];
+// Hiển thị bảng lịch với ô note nhỏ cho từng ca
+function displaySchedule(schedule) {
+  let html = `<div style="margin-top: 30px;">
+    <table class="schedule-table">
+      <thead>
+        <tr>
+          <th>THỨ/ NGÀY</th>
+          ${days.map((d) => `<th>${d}</th>`).join("")}
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>SÁNG (8:30 - 15:30)</td>
+          ${days
+            .map((day, dayIdx) => {
+              const members = schedule[day].morning;
+              return (
+                `<td>` +
+                (members.length > 0
+                  ? members
+                      .map((name) => {
+                        const noteKey = `note-morning-${name}-${dayIdx}`;
+                        const noteVal = localStorage.getItem(noteKey) || "";
+                        return `<div style='margin:2px 0;padding:2px;background:#ffeaa7;border-radius:3px;'>
+                      <div>${name}</div>
+                      <input class='note-input' type='text' data-note-key='${noteKey}' value='${noteVal.replace(
+                          /'/g,
+                          "&#39;"
+                        )}' oninput='saveNote(this)' autocomplete='off' style='margin-top:2px;width:90%;font-size:0.85em;padding:2px 4px;border:1px dashed #ffe082;border-radius:3px;background:#fffbe6;color:#a67c00;text-align:center;' />
+                    </div>`;
+                      })
+                      .join("")
+                  : "<div style='color:#999;'>-</div>") +
+                `</td>`
+              );
+            })
+            .join("")}
+        </tr>
+        <tr>
+          <td>CHIỀU (15:00 - 22:00)</td>
+          ${days
+            .map((day, dayIdx) => {
+              const members = schedule[day].evening;
+              return (
+                `<td>` +
+                (members.length > 0
+                  ? members
+                      .map((name) => {
+                        const noteKey = `note-evening-${name}-${dayIdx}`;
+                        const noteVal = localStorage.getItem(noteKey) || "";
+                        return `<div style='margin:2px 0;padding:2px;background:#74b9ff;color:white;border-radius:3px;'>
+                      <div>${name}</div>
+                      <input class='note-input' type='text' data-note-key='${noteKey}' value='${noteVal.replace(
+                          /'/g,
+                          "&#39;"
+                        )}' oninput='saveNote(this)' autocomplete='off' style='margin-top:2px;width:90%;font-size:0.85em;padding:2px 4px;border:1px dashed #ffe082;border-radius:3px;background:#e3f2fd;color:#1565c0;text-align:center;' />
+                    </div>`;
+                      })
+                      .join("")
+                  : "<div style='color:#999;'>-</div>") +
+                `</td>`
+              );
+            })
+            .join("")}
+        </tr>
+        <tr>
+          <td>OFF</td>
+          ${days
+            .map((day) => {
+              const members = schedule[day].off;
+              return (
+                `<td>` +
+                (members.length > 0
+                  ? members
+                      .map((name) => `<div style='margin:2px 0;'>${name}</div>`)
+                      .join("")
+                  : "<div>-</div>") +
+                `</td>`
+              );
+            })
+            .join("")}
+        </tr>
+      </tbody>
+    </table>
+  </div>`;
+  document.getElementById("scheduleResult").innerHTML = html;
+}
+/***********************
+ * 1. CONSTANTS
+ ***********************/
+const STORAGE_KEYS = {
+  MEMBERS: "members",
+  SHIFTS: "shiftState",
+};
+
 const days = ["Thứ 2", "Thứ 3", "Thứ 4", "Thứ 5", "Thứ 6", "Thứ 7", "Chủ nhật"];
 const dayKeys = ["t2", "t3", "t4", "t5", "t6", "t7", "cn"];
+const SHIFTS = ["morning", "evening", "off"];
 
-// Sửa tên thành viên inline
-function editMemberName(index, oldName) {
-  const input = document.createElement("input");
-  input.type = "text";
-  input.value = oldName;
-  input.className = "member-name-input";
+/***********************
+ * 2. STATE + STORAGE
+ ***********************/
+let members = JSON.parse(localStorage.getItem(STORAGE_KEYS.MEMBERS)) || [
+  "Hảo",
+  "Vy",
+  "Hiếu",
+  "Thùy",
+  "Hương",
+];
 
-  const memberDiv = document.querySelector(`[data-member-index="${index}"]`);
-  memberDiv.replaceChild(input, memberDiv.firstChild);
-  input.focus();
-  input.select();
-
-  function saveName() {
-    const newName = input.value.trim() || oldName;
-    members[index] = newName;
-    // Cập nhật lại toàn bộ grid
-    const grid = document.getElementById("scheduleGrid");
-    grid.innerHTML = "";
-    initializeScheduleGrid();
-  }
-
-  input.addEventListener("blur", saveName);
-  input.addEventListener("keypress", (e) => {
-    if (e.key === "Enter") saveName();
-  });
+function saveMembers() {
+  localStorage.setItem(STORAGE_KEYS.MEMBERS, JSON.stringify(members));
 }
 
-// Khởi tạo giao diện
-function initializeScheduleGrid() {
-  const grid = document.getElementById("scheduleGrid");
+function saveShiftsToStorage() {
+  const shiftState = {};
 
-  members.forEach((member, index) => {
-    // Tên thành viên
-    const memberDiv = document.createElement("div");
-    memberDiv.className = "member-name";
-    memberDiv.setAttribute("data-member-index", index);
-    memberDiv.style.cursor = "pointer";
-    memberDiv.title = "Nhấn để chỉnh sửa tên";
-    memberDiv.textContent = member;
-    memberDiv.onclick = () => editMemberName(index, member);
-    grid.appendChild(memberDiv);
-
-    // Các ngày trong tuần
+  members.forEach((member) => {
+    shiftState[member] = {};
     dayKeys.forEach((dayKey) => {
-      const dayCell = document.createElement("div");
-      dayCell.className = "day-cell";
+      shiftState[member][dayKey] = {};
+      SHIFTS.forEach((shift) => {
+        shiftState[member][dayKey][shift] =
+          document
+            .querySelector(
+              `[data-member="${member}"][data-day="${dayKey}"][data-shift="${shift}"]`
+            )
+            ?.classList.contains("selected") || false;
+      });
+    });
+  });
 
-      const shiftButtons = document.createElement("div");
-      shiftButtons.className = "shift-buttons";
+  localStorage.setItem(STORAGE_KEYS.SHIFTS, JSON.stringify(shiftState));
+}
 
-      // Nút ca sáng
-      const morningBtn = document.createElement("button");
-      morningBtn.className = "shift-btn morning";
-      morningBtn.textContent = "Sáng";
-      morningBtn.setAttribute("data-member", member);
-      morningBtn.setAttribute("data-day", dayKey);
-      morningBtn.setAttribute("data-shift", "morning");
-      morningBtn.onclick = () => toggleShift(member, dayKey, "morning");
+function restoreShiftsFromStorage() {
+  const shiftState = JSON.parse(localStorage.getItem(STORAGE_KEYS.SHIFTS));
+  if (!shiftState) return;
 
-      // Nút ca chiều
-      const eveningBtn = document.createElement("button");
-      eveningBtn.className = "shift-btn evening";
-      eveningBtn.textContent = "Chiều";
-      eveningBtn.setAttribute("data-member", member);
-      eveningBtn.setAttribute("data-day", dayKey);
-      eveningBtn.setAttribute("data-shift", "evening");
-      eveningBtn.onclick = () => toggleShift(member, dayKey, "evening");
-
-      // Nút off
-      const offBtn = document.createElement("button");
-      offBtn.className = "shift-btn off";
-      offBtn.textContent = "Off";
-      offBtn.setAttribute("data-member", member);
-      offBtn.setAttribute("data-day", dayKey);
-      offBtn.setAttribute("data-shift", "off");
-      offBtn.onclick = () => toggleShift(member, dayKey, "off");
-
-      shiftButtons.appendChild(morningBtn);
-      shiftButtons.appendChild(eveningBtn);
-      shiftButtons.appendChild(offBtn);
-      dayCell.appendChild(shiftButtons);
-      grid.appendChild(dayCell);
+  members.forEach((member) => {
+    dayKeys.forEach((dayKey) => {
+      SHIFTS.forEach((shift) => {
+        if (shiftState?.[member]?.[dayKey]?.[shift]) {
+          document
+            .querySelector(
+              `[data-member="${member}"][data-day="${dayKey}"][data-shift="${shift}"]`
+            )
+            ?.classList.add("selected");
+        }
+      });
     });
   });
 }
 
+/***********************
+ * 3. MEMBER EDIT
+ ***********************/
+function editMemberName(index) {
+  const oldName = members[index];
+  const input = document.createElement("input");
+  input.value = oldName;
+  input.className = "member-name-input";
+  const cell = document.querySelector(`[data-member-index="${index}"]`);
+  cell.replaceChildren(input);
+  input.focus();
+
+  input.onblur = input.onkeydown = (e) => {
+    if (e.type === "blur" || e.key === "Enter") {
+      const newName = input.value.trim() || oldName;
+      if (newName !== oldName) {
+        // Chuyển dữ liệu ca làm
+        const shiftState =
+          JSON.parse(localStorage.getItem(STORAGE_KEYS.SHIFTS)) || {};
+        if (shiftState[oldName]) {
+          shiftState[newName] = shiftState[oldName];
+          delete shiftState[oldName];
+          localStorage.setItem(STORAGE_KEYS.SHIFTS, JSON.stringify(shiftState));
+        }
+        // Chuyển note
+        for (let i = 0; i < 7; i++) {
+          ["morning", "evening"].forEach((shift) => {
+            const oldKey = `note-${shift}-${oldName}-${i}`;
+            const newKey = `note-${shift}-${newName}-${i}`;
+            const val = localStorage.getItem(oldKey);
+            if (val !== null) {
+              localStorage.setItem(newKey, val);
+              localStorage.removeItem(oldKey);
+            }
+          });
+        }
+      }
+      members[index] = newName;
+      saveMembers();
+      reloadGrid();
+    }
+  };
+}
+
+/***********************
+ * 4. GRID RENDER
+ ***********************/
+function initializeScheduleGrid() {
+  const grid = document.getElementById("scheduleGrid");
+  grid.innerHTML = "";
+
+  members.forEach((member, index) => {
+    grid.appendChild(renderMemberCell(member, index));
+
+    dayKeys.forEach((dayKey) => {
+      grid.appendChild(renderDayCell(member, dayKey));
+    });
+  });
+}
+
+function renderMemberCell(member, index) {
+  const div = document.createElement("div");
+  div.className = "member-name";
+  div.textContent = member;
+  div.dataset.memberIndex = index;
+  div.onclick = () => editMemberName(index);
+  return div;
+}
+
+function renderDayCell(member, dayKey) {
+  const cell = document.createElement("div");
+  cell.className = "day-cell";
+
+  const container = document.createElement("div");
+  container.className = "shift-buttons";
+
+  SHIFTS.forEach((shift) => {
+    const btn = document.createElement("button");
+    btn.className = `shift-btn ${shift}`;
+    btn.textContent =
+      shift === "morning" ? "Sáng" : shift === "evening" ? "Chiều" : "Off";
+    btn.dataset.member = member;
+    btn.dataset.day = dayKey;
+    btn.dataset.shift = shift;
+    btn.onclick = () => toggleShift(member, dayKey, shift);
+    container.appendChild(btn);
+  });
+
+  cell.appendChild(container);
+  return cell;
+}
+
+/***********************
+ * 5. SHIFT LOGIC
+ ***********************/
 function toggleShift(member, day, shift) {
   const buttons = document.querySelectorAll(
     `[data-member="${member}"][data-day="${day}"]`
   );
 
   if (shift === "off") {
-    // Nếu chọn off, bỏ chọn tất cả các ca khác
-    buttons.forEach((btn) => {
-      btn.classList.remove("selected");
-    });
-    // Chọn off
-    document
-      .querySelector(
-        `[data-member="${member}"][data-day="${day}"][data-shift="off"]`
-      )
-      .classList.add("selected");
+    buttons.forEach((b) => b.classList.remove("selected"));
+    getBtn(member, day, "off")?.classList.add("selected");
   } else {
-    // Bỏ chọn off nếu chọn ca làm việc
-    document
-      .querySelector(
-        `[data-member="${member}"][data-day="${day}"][data-shift="off"]`
-      )
-      .classList.remove("selected");
-
-    // Toggle ca được chọn
-    const targetBtn = document.querySelector(
-      `[data-member="${member}"][data-day="${day}"][data-shift="${shift}"]`
-    );
-    targetBtn.classList.toggle("selected");
+    getBtn(member, day, "off")?.classList.remove("selected");
+    getBtn(member, day, shift)?.classList.toggle("selected");
   }
+
+  saveShiftsToStorage();
 }
 
-function resetAll() {
-  const allButtons = document.querySelectorAll(".shift-btn");
-  allButtons.forEach((btn) => btn.classList.remove("selected"));
-  document.getElementById("scheduleResult").innerHTML = "";
+function getBtn(member, day, shift) {
+  return document.querySelector(
+    `[data-member="${member}"][data-day="${day}"][data-shift="${shift}"]`
+  );
 }
 
+/***********************
+ * 6. SCHEDULE GENERATE
+ ***********************/
 function generateSchedule() {
-  const scheduleData = {};
+  const schedule = {};
 
-  // Thu thập dữ liệu từ các nút đã chọn
-  members.forEach((member) => {
-    scheduleData[member] = {
-      morning: [],
-      evening: [],
-    };
-
-    dayKeys.forEach((dayKey, index) => {
-      const morningBtn = document.querySelector(
-        `[data-member="${member}"][data-day="${dayKey}"][data-shift="morning"]`
-      );
-      const eveningBtn = document.querySelector(
-        `[data-member="${member}"][data-day="${dayKey}"][data-shift="evening"]`
-      );
-
-      if (morningBtn.classList.contains("selected")) {
-        scheduleData[member].morning.push(days[index]);
-      }
-
-      if (eveningBtn.classList.contains("selected")) {
-        scheduleData[member].evening.push(days[index]);
-      }
-    });
-  });
-
-  // Tạo lịch làm việc
-  const weeklySchedule = {};
-
-  days.forEach((day) => {
-    const morningMembers = [];
-    const eveningMembers = [];
-    const offMembers = [];
+  days.forEach((day, idx) => {
+    const key = dayKeys[idx];
+    schedule[day] = { morning: [], evening: [], off: [] };
 
     members.forEach((member) => {
-      const hasMorning = scheduleData[member].morning.includes(day);
-      const hasEvening = scheduleData[member].evening.includes(day);
+      const hasMorning = getBtn(member, key, "morning")?.classList.contains(
+        "selected"
+      );
+      const hasEvening = getBtn(member, key, "evening")?.classList.contains(
+        "selected"
+      );
 
-      if (hasMorning) {
-        morningMembers.push({ name: member });
-      }
-      if (hasEvening) {
-        eveningMembers.push({ name: member });
-      }
-      if (!hasMorning && !hasEvening) {
-        offMembers.push({ name: member });
-      }
+      if (hasMorning) schedule[day].morning.push(member);
+      if (hasEvening) schedule[day].evening.push(member);
+      if (!hasMorning && !hasEvening) schedule[day].off.push(member);
     });
-
-    weeklySchedule[day] = {
-      morningMembers: morningMembers,
-      eveningMembers: eveningMembers,
-      offMembers: offMembers,
-    };
   });
 
-  displaySchedule(weeklySchedule);
+  displaySchedule(schedule);
 }
 
-function displaySchedule(schedule) {
-  // Tính toán ngày trong tuần (từ thứ 2 đến chủ nhật)
-  const today = new Date();
-  const currentDay = today.getDay(); // 0 = CN, 1 = T2, ...
-  const daysUntilMonday = currentDay === 0 ? 1 : 8 - currentDay;
-
-  const startOfWeek = new Date(today);
-  startOfWeek.setDate(today.getDate() + daysUntilMonday);
-
-  const weekDates = [];
-  for (let i = 0; i < 7; i++) {
-    const date = new Date(startOfWeek);
-    date.setDate(startOfWeek.getDate() + i);
-    weekDates.push(date);
-  }
-
-  let html = `
-        <div style="margin-top: 30px;">
-            <h2 style="color: #333; margin-bottom: 20px; text-align: center;">
-                📅 Lịch làm SVH (${weekDates[0]
-                  .getDate()
-                  .toString()
-                  .padStart(2, "0")}/${(weekDates[0].getMonth() + 1)
-    .toString()
-    .padStart(2, "0")}-${weekDates[6].getDate().toString().padStart(2, "0")}/${(
-    weekDates[6].getMonth() + 1
-  )
-    .toString()
-    .padStart(2, "0")})
-            </h2>
-            
-            <table class="schedule-table">
-                <thead>
-                    <tr>
-                        <th class="row-header">THỨ/ NGÀY</th>
-                        ${days
-                          .map(
-                            (day, index) => `
-                            <th class="day-name-header">${day}</th>
-                        `
-                          )
-                          .join("")}
-                    </tr>
-                    <tr>
-                        <th class="row-header"></th>
-                        ${weekDates
-                          .map(
-                            (date) => `
-                            <th class="date-header">${date
-                              .getDate()
-                              .toString()
-                              .padStart(2, "0")}/${(date.getMonth() + 1)
-                              .toString()
-                              .padStart(2, "0")}/${date.getFullYear()}</th>
-                        `
-                          )
-                          .join("")}
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td class="row-header">SÁNG (8:30 - 15:30)</td>
-                        ${days
-                          .map((day) => {
-                            const daySchedule = schedule[day];
-                            const morningNames = daySchedule.morningMembers.map(
-                              (m) => m.name
-                            );
-
-                            return `<td class="member-cell">
-                                ${
-                                  morningNames.length > 0
-                                    ? morningNames
-                                        .map(
-                                          (name) =>
-                                            `<div style="margin: 2px 0; padding: 2px; background: #ffeaa7; border-radius: 3px;">${name}</div>`
-                                        )
-                                        .join("")
-                                    : '<div style="color: #999;">-</div>'
-                                }
-                            </td>`;
-                          })
-                          .join("")}
-                    </tr>
-                    <tr>
-                        <td class="row-header">CHIỀU (15:00 - 22:00)</td>
-                        ${days
-                          .map((day) => {
-                            const daySchedule = schedule[day];
-                            const eveningNames = daySchedule.eveningMembers.map(
-                              (m) => m.name
-                            );
-
-                            return `<td class="member-cell">
-                                ${
-                                  eveningNames.length > 0
-                                    ? eveningNames
-                                        .map(
-                                          (name) =>
-                                            `<div style="margin: 2px 0; padding: 2px; background: #74b9ff; color: white; border-radius: 3px;">${name}</div>`
-                                        )
-                                        .join("")
-                                    : '<div style="color: #999;">-</div>'
-                                }
-                            </td>`;
-                          })
-                          .join("")}
-                    </tr>
-                    <tr>
-                        <td class="off-row">OFF</td>
-                        ${days
-                          .map((day) => {
-                            const daySchedule = schedule[day];
-                            const offNames = daySchedule.offMembers.map(
-                              (m) => m.name
-                            );
-
-                            return `<td class="off-row">
-                                ${
-                                  offNames.length > 0
-                                    ? offNames
-                                        .map(
-                                          (name) =>
-                                            `<div style="margin: 2px 0;">${name}</div>`
-                                        )
-                                        .join("")
-                                    : "<div>-</div>"
-                                }
-                            </td>`;
-                          })
-                          .join("")}
-                    </tr>
-                </tbody>
-            </table>
-            
-            <div style="background: #e8f5e8; padding: 15px; border-radius: 8px; margin-top: 20px;">
-                <h3 style="color: #2d5a2d; margin-bottom: 15px;">📊 Thống kê ca làm việc:</h3>
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
-                    ${members
-                      .map((member) => {
-                        let morningCount = 0;
-                        let eveningCount = 0;
-                        let offCount = 0;
-
-                        days.forEach((day) => {
-                          const daySchedule = schedule[day];
-                          if (
-                            daySchedule.morningMembers.find(
-                              (m) => m.name === member
-                            )
-                          )
-                            morningCount++;
-                          if (
-                            daySchedule.eveningMembers.find(
-                              (m) => m.name === member
-                            )
-                          )
-                            eveningCount++;
-                          if (
-                            daySchedule.offMembers.find(
-                              (m) => m.name === member
-                            )
-                          )
-                            offCount++;
-                        });
-
-                        return `
-                            <div style="background: white; padding: 15px; border-radius: 8px; text-align: center;">
-                                <strong style="color: #2d5a2d; font-size: 1.1rem;">${member}</strong><br>
-                                <div style="margin-top: 8px; font-size: 0.9rem;">
-                                    <span style="color: #e67e22;">🌅 Sáng: ${morningCount}</span><br>
-                                    <span style="color: #3498db;">🌆 Chiều: ${eveningCount}</span><br>
-                                    <span style="color: #e74c3c;">😴 Off: ${offCount}</span>
-                                </div>
-                            </div>
-                        `;
-                      })
-                      .join("")}
-                </div>
-            </div>
-        </div>
-    `;
-
-  document.getElementById("scheduleResult").innerHTML = html;
+/***********************
+ * 7. NOTE HANDLER
+ ***********************/
+function saveNote(input) {
+  localStorage.setItem(input.dataset.noteKey, input.value);
+  generateSchedule();
 }
 
-// Khởi tạo giao diện khi trang load
-document.addEventListener("DOMContentLoaded", function () {
+/***********************
+ * 8. INIT
+ ***********************/
+function reloadGrid() {
   initializeScheduleGrid();
-});
+  restoreShiftsFromStorage();
+}
+
+document.addEventListener("DOMContentLoaded", reloadGrid);

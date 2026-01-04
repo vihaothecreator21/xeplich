@@ -1,16 +1,47 @@
-const members = ["Hảo", "Vy", "Hiếu", "Thùy", "Hương"];
+let members = ["Hảo", "Vy", "Hiếu", "Thùy", "Hương"];
 const days = ["Thứ 2", "Thứ 3", "Thứ 4", "Thứ 5", "Thứ 6", "Thứ 7", "Chủ nhật"];
 const dayKeys = ["t2", "t3", "t4", "t5", "t6", "t7", "cn"];
+
+// Sửa tên thành viên inline
+function editMemberName(index, oldName) {
+  const input = document.createElement("input");
+  input.type = "text";
+  input.value = oldName;
+  input.className = "member-name-input";
+
+  const memberDiv = document.querySelector(`[data-member-index="${index}"]`);
+  memberDiv.replaceChild(input, memberDiv.firstChild);
+  input.focus();
+  input.select();
+
+  function saveName() {
+    const newName = input.value.trim() || oldName;
+    members[index] = newName;
+    // Cập nhật lại toàn bộ grid
+    const grid = document.getElementById("scheduleGrid");
+    grid.innerHTML = "";
+    initializeScheduleGrid();
+  }
+
+  input.addEventListener("blur", saveName);
+  input.addEventListener("keypress", (e) => {
+    if (e.key === "Enter") saveName();
+  });
+}
 
 // Khởi tạo giao diện
 function initializeScheduleGrid() {
   const grid = document.getElementById("scheduleGrid");
 
-  members.forEach((member) => {
+  members.forEach((member, index) => {
     // Tên thành viên
     const memberDiv = document.createElement("div");
     memberDiv.className = "member-name";
+    memberDiv.setAttribute("data-member-index", index);
+    memberDiv.style.cursor = "pointer";
+    memberDiv.title = "Nhấn để chỉnh sửa tên";
     memberDiv.textContent = member;
+    memberDiv.onclick = () => editMemberName(index, member);
     grid.appendChild(memberDiv);
 
     // Các ngày trong tuần

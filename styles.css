@@ -76,6 +76,38 @@ body {
   text-align: center;
 }
 
+.member-name {
+  padding: 10px;
+  font-weight: bold;
+  text-align: center;
+  background: linear-gradient(135deg, #d67a00 0%, #c96500 100%);
+  color: white;
+  border-radius: 5px;
+  transition: all 0.3s ease;
+}
+
+.member-name:hover {
+  background: linear-gradient(135deg, #c96500 0%, #b04d00 100%);
+  transform: scale(1.05);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.member-name-input {
+  padding: 8px;
+  border: 2px solid #ff6b6b;
+  border-radius: 4px;
+  font-size: 1rem;
+  font-weight: bold;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.member-name-input:focus {
+  outline: none;
+  border-color: #ff5252;
+  box-shadow: 0 0 5px rgba(255, 107, 107, 0.5);
+}
+
 .schedule-grid {
   display: grid;
   grid-template-columns: 120px repeat(7, 1fr);

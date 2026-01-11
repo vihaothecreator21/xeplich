@@ -1,6 +1,32 @@
 // Hiển thị bảng lịch với ô note nhỏ cho từng ca
 function displaySchedule(schedule) {
+  // Tính toán ngày trong tuần (từ thứ 2 đến chủ nhật)
+  const today = new Date();
+  const currentDay = today.getDay(); // 0 = CN, 1 = T2, ...
+  const daysUntilMonday = currentDay === 0 ? 1 : 8 - currentDay;
+  const startOfWeek = new Date(today);
+  startOfWeek.setDate(today.getDate() + daysUntilMonday);
+  const weekDates = [];
+  for (let i = 0; i < 7; i++) {
+    const date = new Date(startOfWeek);
+    date.setDate(startOfWeek.getDate() + i);
+    weekDates.push(date);
+  }
+
   let html = `<div style="margin-top: 30px;">
+    <h2 style="color:#333; margin-bottom:20px; text-align:center;">
+      📅 Lịch làm việc (${weekDates[0]
+        .getDate()
+        .toString()
+        .padStart(2, "0")}/${(weekDates[0].getMonth() + 1)
+    .toString()
+    .padStart(2, "0")}/${weekDates[0].getFullYear()} - ${weekDates[6]
+    .getDate()
+    .toString()
+    .padStart(2, "0")}/${(weekDates[6].getMonth() + 1)
+    .toString()
+    .padStart(2, "0")}/${weekDates[6].getFullYear()})
+    </h2>
     <table class="schedule-table">
       <thead>
         <tr>
@@ -10,7 +36,7 @@ function displaySchedule(schedule) {
       </thead>
       <tbody>
         <tr>
-          <td>SÁNG (8:30 - 15:30)</td>
+          <td style="background: #fffbe6;">SÁNG (8:30 - 15:30)</td>
           ${days
             .map((day, dayIdx) => {
               const members = schedule[day].morning;
@@ -301,7 +327,14 @@ function generateSchedule() {
  ***********************/
 function saveNote(input) {
   localStorage.setItem(input.dataset.noteKey, input.value);
-  generateSchedule();
+  // Chỉ gọi generateSchedule khi blur hoặc Enter
+  if (
+    window.event &&
+    (window.event.type === "blur" ||
+      (window.event.type === "keydown" && window.event.key === "Enter"))
+  ) {
+    generateSchedule();
+  }
 }
 
 /***********************

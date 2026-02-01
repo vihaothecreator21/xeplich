@@ -90,12 +90,12 @@ function displaySchedule(schedule) {
             .join("")}
         </tr>
         <tr>
-          <td>OFF</td>
+          <td class="off-row">OFF</td>
           ${days
             .map((day) => {
               const members = schedule[day].off;
               return (
-                `<td>` +
+                `<td class="off-row">` +
                 (members.length > 0
                   ? members
                       .map((name) => `<div style='margin:2px 0;'>${name}</div>`)
@@ -346,3 +346,21 @@ function reloadGrid() {
 }
 
 document.addEventListener("DOMContentLoaded", reloadGrid);
+
+// 9. RESET FUNCTION
+function resetAll() {
+  if (confirm("Bạn có chắc chắn muốn đặt lại toàn bộ lịch và ghi chú?")) {
+    // Xóa dữ liệu localStorage liên quan
+    localStorage.removeItem(STORAGE_KEYS.MEMBERS);
+    localStorage.removeItem(STORAGE_KEYS.SHIFTS);
+    // Xóa tất cả note
+    Object.keys(localStorage)
+      .filter((k) => k.startsWith("note-"))
+      .forEach((k) => localStorage.removeItem(k));
+    // Khôi phục thành viên mặc định
+    members = ["Hảo", "Vy", "Hiếu", "Thùy", "Hương"];
+    saveMembers();
+    reloadGrid();
+    document.getElementById("scheduleResult").innerHTML = "";
+  }
+}
